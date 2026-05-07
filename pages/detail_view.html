@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderSL – Destination Detail</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --forest: #1a2e1e;
+            --gold: #c9954a;
+            --gold-light: #e8b96a;
+            --cream: #f7f3ed;
+            --warm-white: #fdfaf6;
+            --text-dark: #1c1c1c;
+            --text-mid: #5a5a5a;
+            --text-light: #9a9a9a;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--warm-white);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* ════ NAV ════ */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 3rem;
+            background: rgba(253, 250, 246, 0.93);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(201, 149, 74, 0.15);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--forest);
+        }
+
+        .nav-logo span {
+            color: var(--gold);
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-mid);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .nav-back:hover {
+            color: var(--gold);
+        }
+
+        .nav-back:hover svg {
+            transform: translateX(-3px);
+        }
+
+        .nav-back svg {
+            transition: transform 0.2s;
+        }
+
+        /* ════ DETAIL PAGE ════ */
+        #page-detail {
+            padding-top: 72px;
+        }
+
+        .detail-hero {
+            position: relative;
+            height: 75vh;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .detail-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform-origin: center;
+            animation: heroZoom 10s ease-out forwards;
+        }
+
+        @keyframes heroZoom {
+            from {
+                transform: scale(1.08);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .detail-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(10, 20, 12, 0.22) 0%, rgba(10, 20, 12, 0.62) 100%);
+        }
+
+        .detail-hero-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3rem 4rem;
+            animation: fadeUp 0.65s ease 0.1s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .detail-country {
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            margin-bottom: 0.55rem;
+        }
+
+        .detail-name {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.6rem, 6vw, 4.8rem);
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.05;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* detail body */
+        .detail-body {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 4rem 3rem 6rem;
+            animation: fadeUp 0.65s ease 0.22s both;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.8rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(201, 149, 74, 0.2);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .meta-label {
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .meta-value {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .about-section {
+            margin-bottom: 3.2rem;
+        }
+
+        .about-section-label {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.7rem;
+        }
+
+        .about-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.85rem;
+            color: var(--forest);
+            margin-bottom: 1.1rem;
+            line-height: 1.25;
+        }
+
+        .about-text {
+            font-size: 1rem;
+            color: var(--text-mid);
+            line-height: 1.85;
+            max-width: 700px;
+        }
+
+        .about-text+.about-text {
+            margin-top: 1rem;
+        }
+
+        /* highlights */
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3.2rem;
+        }
+
+        .highlight-card {
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 1.15rem 1.35rem;
+            border: 1px solid rgba(201, 149, 74, 0.14);
+        }
+
+        .highlight-icon {
+            font-size: 1.35rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .highlight-title {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 0.15rem;
+        }
+
+        .highlight-desc {
+            font-size: 0.73rem;
+            color: var(--text-light);
+        }
+
+        /* rating row */
+        .detail-rating-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 2.8rem;
+        }
+
+        .detail-stars {
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .detail-score {
+            font-size: 0.9rem;
+            color: var(--text-mid);
+            font-weight: 500;
+        }
+
+        /* booking buttons */
+        .book-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-book {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--forest);
+            color: var(--cream);
+            border: none;
+            cursor: pointer;
+            padding: 1rem 2.2rem;
+            border-radius: 50px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+            box-shadow: 0 4px 20px rgba(26, 46, 30, 0.25);
+        }
+
+        .btn-book:hover {
+            background: #2d4a32;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(26, 46, 30, 0.35);
+        }
+
+        .btn-book:active {
+            transform: none;
+        }
+
+        .btn-book-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .btn-book:hover .btn-book-icon {
+            transform: rotate(15deg);
+        }
+
+        .btn-map-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: 1.5px solid rgba(201, 149, 74, 0.4);
+            cursor: pointer;
+            padding: 1rem 1.8rem;
+            border-radius: 50px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gold);
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .btn-map-link:hover {
+            background: rgba(201, 149, 74, 0.08);
+            border-color: var(--gold);
+        }
+
+        /* ════ BOOKING MODAL ════ */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: rgba(10, 20, 12, 0.7);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+            animation: bfadeIn 0.2s ease;
+        }
+
+        @keyframes bfadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .booking-modal {
+            background: var(--warm-white);
+            border-radius: 20px;
+            padding: 2.4rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.1rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 1.25rem;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-tag {
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.4rem;
+        }
+
+        .booking-modal h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65rem;
+            color: var(--forest);
+            margin-bottom: 0.35rem;
+        }
+
+        .modal-dest-name {
+            font-size: 0.88rem;
+            color: var(--text-mid);
+            margin-bottom: 1.8rem;
+        }
+
+        .form-row {
+            margin-bottom: 1.1rem;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 0.73rem;
+            font-weight: 500;
+            letter-spacing: 0.07em;
+            color: var(--text-mid);
+            margin-bottom: 0.38rem;
+        }
+
+        .form-row input,
+        .form-row select {
+            width: 100%;
+            padding: 0.72rem 1rem;
+            border: 1.5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            background: #fff;
+            color: var(--text-dark);
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: var(--gold);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            padding: 1rem;
+            background: var(--forest);
+            color: var(--cream);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-top: 0.4rem;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .btn-confirm:hover {
+            background: #2d4a32;
+            transform: translateY(-1px);
+        }
+
+        /* ════ RESPONSIVE ════ */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.4rem;
+            }
+
+            .detail-hero-content {
+                padding: 2rem 1.5rem;
+            }
+
+            .detail-body {
+                padding: 2.5rem 1.4rem 4rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ NAV ══ -->
+    <nav>
+        <div class="nav-logo">Wander<span>SL</span></div>
+        <button class="nav-back" onclick="history.back()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+            Back to destinations
+        </button>
+    </nav>
+
+    <!-- ══ DETAIL PAGE ══ -->
+    <div id="page-detail">
+
+        <div class="detail-hero">
+            <img id="detail-img" src="" alt="">
+            <div class="detail-hero-overlay"></div>
+            <div class="detail-hero-content">
+                <div class="detail-country" id="detail-country"></div>
+                <div class="detail-name" id="detail-name"></div>
+            </div>
+        </div>
+
+        <div class="detail-body">
+            <div class="detail-meta" id="detail-meta"></div>
+            <div class="detail-rating-row" id="detail-rating-row"></div>
+
+            <div class="about-section">
+                <div class="about-section-label">About this destination</div>
+                <div class="about-title" id="about-title"></div>
+                <p class="about-text" id="about-text1"></p>
+                <p class="about-text" id="about-text2"></p>
+            </div>
+
+            <div class="highlights" id="detail-highlights"></div>
+
+            <div class="book-section">
+                <button class="btn-book" onclick="openModal()">
+                    <div class="btn-book-icon">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 8h8M8 4l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    Book Vehicle &amp; Guider
+                </button>
+                <a id="detail-map-link" href="#" target="_blank" class="btn-map-link">
+                    📍 View on Map
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ BOOKING MODAL ══ -->
+    <div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
+        <div class="booking-modal">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="modal-tag">Reserve your experience</div>
+            <h3>Book Vehicle &amp; Guider</h3>
+            <p class="modal-dest-name" id="modal-dest-name"></p>
+
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="Your name">
+                </div>
+                <div class="form-row">
+                    <label>Phone Number</label>
+                    <input type="tel" placeholder="+94 7X XXX XXXX">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label>Travel Date</label>
+                    <input type="date">
+                </div>
+                <div class="form-row">
+                    <label>Group Size</label>
+                    <select>
+                        <option>1 person</option>
+                        <option>2 people</option>
+                        <option>3–5 people</option>
+                        <option>6–10 people</option>
+                        <option>10+ people</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label>Vehicle Type</label>
+                <select>
+                    <option>Tuk-Tuk (1–3 pax)</option>
+                    <option>Car – Sedan (1–4 pax)</option>
+                    <option>SUV / Jeep (1–6 pax)</option>
+                    <option>Van / Minibus (7–12 pax)</option>
+                </select>
+            </div>
+            <button class="btn-confirm" onclick="confirmBooking()">Confirm Booking →</button>
+        </div>
+    </div>
+
+    <script>
+        /* ─────────────────────────────────────────
+           DESTINATION DATA
+      
+        ───────────────────────────────────────── */
+        const destinations = [
+            {
+                // id: 1,
+                name: "Sigiriya",
+                // subtitle: "Rock Fortress",
+                // tag: "Ancient Wonder",
+                country: "Central Province, Sri Lanka",
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Sigiriya_2013.jpg/1280px-Sigiriya_2013.jpg",
+                rating: 4,
+                mapUrl: "https://maps.google.com/?q=Sigiriya",
+                meta: [
+                    { label: "Best Season", value: "Jan – Apr" },
+                    { label: "Altitude", value: "349 m" },
+                    { label: "Entry Fee", value: "USD 30" },
+                    { label: "Duration", value: "3–4 hours" }
+                ],
+                aboutTitle: "An Ancient Kingdom in the Clouds",
+                about1: "Sigiriya, or Lion Rock, is a UNESCO World Heritage Site and one of Sri Lanka's most iconic landmarks. Perched atop a volcanic plug of rock that rises nearly 200 metres above the surrounding jungle, this ancient citadel was constructed by King Kashyapa in the 5th century AD as a fortified palace in the sky.",
+                about2: "The climb rewards visitors with sweeping panoramic views of the Central Province jungle canopy. Along the way, marvel at the famous Sigiriya frescoes — vivid paintings of celestial maidens that have survived over 1,500 years — and the remarkable mirror wall, once polished to such perfection that the king could see his reflection.",
+                highlights: [
+                    { icon: "🏛", title: "UNESCO Heritage", desc: "Listed since 1982" },
+                    { icon: "🌿", title: "Jungle Views", desc: "360° forest panorama" },
+                    { icon: "🎨", title: "Ancient Frescoes", desc: "5th-century paintings" },
+                    { icon: "🦅", title: "Wildlife", desc: "Eagles & monkeys" }
+                ]
+            },
+            {
+                // id: 2,
+                name: "Ella",
+                // subtitle: "Hill Country Escape",
+                // tag: "Mountain Village",
+                country: "Uva Province, Sri Lanka",
+                image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Nine_Arches_Bridge_Ella.jpg/1280px-Nine_Arches_Bridge_Ella.jpg",
+                rating: 5,
+                mapUrl: "https://maps.google.com/?q=Ella+Sri+Lanka",
+                meta: [
+                    { label: "Best Season", value: "Dec – Mar" },
+                    { label: "Altitude", value: "1,041 m" },
+                    { label: "Temp", value: "16–26 °C" },
+                    { label: "Duration", value: "2–3 days" }
+                ],
+                aboutTitle: "Where the Mist Meets the Mountains",
+                about1: "Ella is a small but breathtaking hill-country town nestled among emerald tea estates and misty mountain ridges. The town has become a beloved destination for travellers seeking cool air, epic hikes, and the peaceful rhythm of life among the tea pickers.",
+                about2: "The Nine Arches Bridge — a colonial-era viaduct built entirely without steel — cuts a dramatic arc through the jungle and is arguably the most photographed spot in Sri Lanka. From Little Adam's Peak, sunset casts a golden glow over the valleys below, making Ella a truly unforgettable highland escape.",
+                highlights: [
+                    { icon: "🌉", title: "Nine Arches", desc: "Iconic colonial bridge" },
+                    { icon: "🍵", title: "Tea Estates", desc: "Walk the plantations" },
+                    { icon: "🥾", title: "Trekking", desc: "Little Adam's Peak" },
+                    { icon: "🚂", title: "Scenic Train", desc: "Kandy to Ella ride" }
+                ]
+            }
+            /* ← Add more destinations here */
+        ];
+
+        /* ─────────────────────────────────────────
+           load the id using id
+        ───────────────────────────────────────── */
+        function getQueryParam(key) {
+            return new URLSearchParams(window.location.search).get(key);
+        }
+
+        function renderDetail(d) {
+            document.title = `WanderSL – ${d.name}`;
+
+            document.getElementById('detail-img').src = d.image;
+            document.getElementById('detail-img').alt = d.name;
+            document.getElementById('detail-country').textContent = d.country;
+            document.getElementById('detail-name').innerHTML =
+                `${d.name} <em style="font-weight:400;opacity:0.72;font-size:0.58em">${d.subtitle}</em>`;
+
+            /* stars */
+            const stars = '★'.repeat(d.rating) + '☆'.repeat(5 - d.rating);
+            document.getElementById('detail-rating-row').innerHTML =
+                `<span class="detail-stars">${stars}</span>
+             <span class="detail-score">${d.rating}/5 rating</span>`;
+
+            /* meta strip */
+            document.getElementById('detail-meta').innerHTML =
+                d.meta.map(m => `
+                <div class="meta-item">
+                    <div class="meta-label">${m.label}</div>
+                    <div class="meta-value">${m.value}</div>
+                </div>`).join('');
+
+            /* about */
+            document.getElementById('about-title').textContent = d.aboutTitle;
+            document.getElementById('about-text1').textContent = d.about1;
+            document.getElementById('about-text2').textContent = d.about2;
+
+            /* highlights */
+            document.getElementById('detail-highlights').innerHTML =
+                d.highlights.map(h => `
+                <div class="highlight-card">
+                    <div class="highlight-icon">${h.icon}</div>
+                    <div class="highlight-title">${h.title}</div>
+                    <div class="highlight-desc">${h.desc}</div>
+                </div>`).join('');
+
+            /* map + modal label */
+            document.getElementById('detail-map-link').href = d.mapUrl;
+            document.getElementById('modal-dest-name').textContent = `${d.name} – ${d.subtitle}`;
+        }
+
+        /*function show detail by id (for nav)*/
+
+        function showDetail(id) {
+            const d = destinations[id];
+            if (!d) return;
+
+            // hero
+            document.getElementById('detail-img').src = d.image;
+            document.getElementById('detail-country').textContent = d.country;
+            document.getElementById('detail-name').innerHTML =
+                `${d.name} <em style="opacity:.7;font-size:.6em">${d.subtitle}</em>`;
+
+            // stars & meta
+            document.getElementById('detail-rating-row').innerHTML =
+                `<span class="detail-stars">${'★'.repeat(d.rating)}${'☆'.repeat(5 - d.rating)}</span>
+     <span class="detail-score">${d.rating}/5</span>`;
+            document.getElementById('detail-meta').innerHTML =
+                d.meta.map(m => `<div class="meta-item">
+      <div class="meta-label">${m.label}</div>
+      <div class="meta-value">${m.value}</div>
+    </div>`).join('');
+
+            // about
+            document.getElementById('about-title').textContent = d.aboutTitle;
+            document.getElementById('about-text1').textContent = d.about1;
+            document.getElementById('about-text2').textContent = d.about2;
+
+            // highlights
+            document.getElementById('detail-highlights').innerHTML =
+                d.highlights.map(h => `<div class="highlight-card">
+      <div class="highlight-icon">${h.icon}</div>
+      <div class="highlight-title">${h.title}</div>
+      <div class="highlight-desc">${h.desc}</div>
+    </div>`).join('');
+
+            // map link + modal
+            document.getElementById('detail-map-link').href = d.mapUrl;
+            document.getElementById('modal-dest-name').textContent = `${d.name} – ${d.subtitle}`;
+
+            // page switch
+            document.getElementById('page-destinations').classList.remove('active');
+            document.getElementById('page-detail').classList.add('active');
+            document.getElementById('navBack').style.display = 'flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showDestinations() {
+            document.getElementById('page-detail').classList.remove('active');
+            document.getElementById('page-destinations').classList.add('active');
+            document.getElementById('navBack').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ─────────────────────────────────────────
+           INIT
+        ───────────────────────────────────────── */
+        const requestedId = parseInt(getQueryParam('id')) || destinations[0].id;
+        const dest = destinations.find(d => d.id === requestedId) || destinations[0];
+        renderDetail(dest);
+
+        /* ── Modal helpers ── */
+        function openModal() { document.getElementById('modalBackdrop').classList.add('open'); }
+        function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); }
+        function closeModalOutside(e) {
+            if (e.target === document.getElementById('modalBackdrop')) closeModal();
+        }
+        function confirmBooking() {
+            closeModal();
+            alert(`✅ Booking request sent!\n\nThank you for choosing ${dest.name}.\nOur team will contact you within 24 hours.`);
+        }
+    </script>
+</body>
+
+</html>
