@@ -1,35 +1,61 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+header("Content-Type: application/json");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Headers: Content-Type");
+
 session_start();
+require_once "db.php";
 
-// 1. Database Connection (Port 3307)
-$conn = new mysqli("localhost", "root", "", "explore_srilanka_db");
+$raw = file_get_contents("php://input");
+$data = json_decode($raw, true);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$email = trim($data["email"] ?? "");
+$pw = trim($data["password"] ?? "");
+
+if (!$email || !$pw) {
+    echo json_encode(["success" => false, "message" => "Please fill in all fields."]);
+    exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $conn->real_escape_string($_POST['email']);
-    $password = $conn->real_escape_string($_POST['password']);
+try {
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        $username = $user['username'];
-
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['username'] = $username;
-
-        $update_status = "UPDATE users SET status = 1 WHERE email = '$email'";
-        $conn->query($update_status);
-
-        echo "success";
-    } else {
-        echo "Incorrect email address or password!";
+    if (!$user || !password_verify($pw, $user["password"])) {
+        echo json_encode(["success" => false, "message" => "Incorrect email or password."]);
+        exit;
     }
-}
 
-$conn->close();
+    $_SESSION["user_id"] = $user["id"];
+    $_SESSION["user_name"] = $user["username"];
+    $_SESSION["user_email"] = $user["email"];
+    $_SESSION["user_role"] = $user["role"] ?? "user";
+
+    try {
+        $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?")
+            ->execute([$user["id"]]);
+    } catch (Exception $e) {
+    }
+
+    echo json_encode([
+        "success" => true,
+        "message" => "Welcome back, " . $user["username"] . "!",
+        "user" => [
+            "name" => $user["username"],
+            "email" => $user["email"],
+            "role" => $user["role"] ?? "user"
+        ]
+    ]);
+
+} catch (Exception $e) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Database error: " . $e->getMessage()
+    ]);
+}
 ?>

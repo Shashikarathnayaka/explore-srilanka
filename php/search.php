@@ -1,19 +1,7 @@
 <?php
-/**
- * search.php  — Explore Sri Lanka
- * HTML folder (html/index.html) ekin fetch() call ekak gena
- * destination search results return karanna.
- *
- * URL: /php/search.php?q=ella
- */
-
 header("Content-Type: text/html; charset=UTF-8");
 header("Access-Control-Allow-Origin: *"); // same-server call for local dev
 
-// -------------------------------------------------------
-// Destinations database (real project eke database ekata
-// connect karanna puluwannam - eg: mysqli / PDO)
-// -------------------------------------------------------
 $destinations = [
     [
         "name" => "Sigiriya",

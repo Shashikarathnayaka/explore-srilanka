@@ -1,6 +1,4 @@
 <?php
-// save_comment.php
-// Saves visitor comments to a JSON file
 
 header("Content-Type: application/json");
 

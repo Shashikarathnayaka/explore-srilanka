@@ -513,7 +513,6 @@
       transform: translateX(4px);
     }
 
-    /* Loading spinner inside button */
     .spinner {
       width: 16px;
       height: 16px;
@@ -802,15 +801,12 @@
 
           <div class="divider"><span>or continue with</span></div>
           <div class="social-btns">
-            <button class="social-btn" title="Google" onclick="socialLogin('google')">
-              <i class="fab fa-google"></i>
-            </button>
-            <button class="social-btn" title="Facebook" onclick="socialLogin('facebook')">
-              <i class="fab fa-facebook-f"></i>
-            </button>
-            <button class="social-btn" title="Apple" onclick="socialLogin('apple')">
-              <i class="fab fa-apple"></i>
-            </button>
+            <button class="social-btn" title="Google" onclick="socialLogin('Google')"><i
+                class="fab fa-google"></i></button>
+            <button class="social-btn" title="Facebook" onclick="socialLogin('Facebook')"><i
+                class="fab fa-facebook-f"></i></button>
+            <button class="social-btn" title="Apple" onclick="socialLogin('Apple')"><i
+                class="fab fa-apple"></i></button>
           </div>
           <div class="divider"><span>or use email</span></div>
 
@@ -910,8 +906,7 @@
           <div class="terms">
             <label>
               <input type="checkbox" id="r-terms">
-              <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy
-                  Policy</a></span>
+              <span>I agree to the <a href="#">Terms &amp; Conditions</a> and <a href="#">Privacy Policy</a></span>
             </label>
           </div>
 
@@ -931,35 +926,7 @@
 
   </div>
 
-  <!-- ══════════════════════════════════════════════════
-         FIREBASE SDK  (v10 modular — compat layer used
-         so existing onclick handlers stay unchanged)
-    ══════════════════════════════════════════════════ -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
   <script>
-    /* ══════════════════════════════════════════════
-       🔧 FIREBASE CONFIG
-       Firebase Console → Project Settings → Web App
-       eka aken copy karala mekata paste karanna.
-    ══════════════════════════════════════════════ */
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY_HERE",
-      authDomain: "explore-srilanka-a364b.firebaseapp.com",
-      projectId: "explore-srilanka-a364b",
-      storageBucket: "explore-srilanka-a364b.firebasestorage.app",
-      messagingSenderId: "359754130881",
-      appId: "1:359754130881:web:a6f7c19221df71fcd6fb40",
-      measurementId: "G-V0FWTTVFQG"
-    };
-
-    // Firebase initialise karanna
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
     /* ══════════════════════════════════════════════
        PARTICLES
     ══════════════════════════════════════════════ */
@@ -970,7 +937,8 @@
         d.className = 'p';
         var sz = Math.random() * 6 + 3;
         d.style.cssText = [
-          'width:' + sz + 'px', 'height:' + sz + 'px',
+          'width:' + sz + 'px',
+          'height:' + sz + 'px',
           'left:' + (Math.random() * 100) + '%',
           'animation-duration:' + (Math.random() * 18 + 12) + 's',
           'animation-delay:' + (Math.random() * 20) + 's',
@@ -1057,30 +1025,13 @@
     }
 
     /* ══════════════════════════════════════════════
-       FIREBASE ERROR → USER-FRIENDLY MESSAGE
-    ══════════════════════════════════════════════ */
-    function friendlyError(code) {
-      var map = {
-        'auth/user-not-found': 'No account found with this email.',
-        'auth/wrong-password': 'Incorrect password. Please try again.',
-        'auth/email-already-in-use': 'This email is already registered.',
-        'auth/weak-password': 'Password must be at least 6 characters.',
-        'auth/invalid-email': 'Please enter a valid email address.',
-        'auth/too-many-requests': 'Too many attempts. Please try again later.',
-        'auth/network-request-failed': 'Network error. Check your connection.',
-        'auth/invalid-credential': 'Incorrect email or password.',
-        'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
-      };
-      return map[code] || 'Something went wrong. Please try again.';
-    }
-
-    /* ══════════════════════════════════════════════
-       ✅ LOGIN  — Firebase Auth
+        LOGIN — PHP Backend
     ══════════════════════════════════════════════ */
     function doLogin() {
       hideAlerts();
       var email = document.getElementById('l-email').value.trim();
       var pw = document.getElementById('l-pw').value;
+      var remember = document.getElementById('remember').checked;
 
       if (!email || !pw) {
         return showAlert('login-err', 'Please fill in all fields.', 'error');
@@ -1088,35 +1039,38 @@
 
       setLoading('login', true);
 
-      // Remember-me persistence
-      var persistence = document.getElementById('remember').checked
-        ? firebase.auth.Auth.Persistence.LOCAL
-        : firebase.auth.Auth.Persistence.SESSION;
-
-      auth.setPersistence(persistence)
-        .then(function () {
-          return auth.signInWithEmailAndPassword(email, pw);
-        })
-        .then(function (cred) {
-          // Firestore eke lastLogin update karanna
-          return db.collection('users').doc(cred.user.uid).update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          }).catch(function () { }); // update fail unoth ignore karanna
-        })
-        .then(function () {
-          showAlert('login-ok', 'Welcome back! Redirecting…', 'success');
-          setTimeout(function () {
-            window.location.href = '../index.html';
-          }, 1100);
-        })
-        .catch(function (err) {
+      fetch('../php/login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: pw, remember: remember })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
           setLoading('login', false);
-          showAlert('login-err', friendlyError(err.code), 'error');
+
+          if (data.success) {
+            showAlert('login-ok', data.message + ' Redirecting…', 'success');
+            setTimeout(function () {
+              // ✅ Role check කරලා redirect
+              if (data.user && data.user.role === 'admin') {
+                window.location.href = '../pages/admin.html';
+              } else {
+                window.location.href = '../index.html';
+              }
+            }, 1100);
+          }
+          else {
+            showAlert('login-err', data.message, 'error');
+          }
+        })
+        .catch(function () {
+          setLoading('login', false);
+          showAlert('login-err', 'Server error. Please try again.', 'error');
         });
     }
 
     /* ══════════════════════════════════════════════
-       ✅ REGISTER — Firebase Auth + Firestore
+       ✅ REGISTER — PHP Backend
     ══════════════════════════════════════════════ */
     function doRegister() {
       hideAlerts();
@@ -1126,123 +1080,54 @@
       var cpw = document.getElementById('r-confirm').value;
       var terms = document.getElementById('r-terms').checked;
 
-      // Client-side validation
-      if (!name)
-        return showAlert('reg-err', 'Please enter your full name.', 'error');
-      if (!email || !email.includes('@'))
-        return showAlert('reg-err', 'Please enter a valid email.', 'error');
-      if (pw.length < 6)
-        return showAlert('reg-err', 'Password must be at least 6 characters.', 'error');
-      if (pw !== cpw)
-        return showAlert('reg-err', 'Passwords do not match.', 'error');
-      if (!terms)
-        return showAlert('reg-err', 'Please accept the Terms & Conditions.', 'error');
+      if (!name) return showAlert('reg-err', 'Please enter your full name.', 'error');
+      if (!email) return showAlert('reg-err', 'Please enter a valid email.', 'error');
+      if (pw.length < 6) return showAlert('reg-err', 'Password must be at least 6 characters.', 'error');
+      if (pw !== cpw) return showAlert('reg-err', 'Passwords do not match.', 'error');
+      if (!terms) return showAlert('reg-err', 'Please accept the Terms & Conditions.', 'error');
 
       setLoading('reg', true);
 
-      // 1. Firebase Auth account create karanna
-      auth.createUserWithEmailAndPassword(email, pw)
-        .then(function (cred) {
-          var uid = cred.user.uid;
-          var user = cred.user;
-
-          // 2. Auth profile update karanna (displayName)
-          var profileUpdate = user.updateProfile({ displayName: name });
-
-          // 3. Firestore 'users' collection eke document save karanna
-          var firestoreSave = db.collection('users').doc(uid).set({
-            uid: uid,
-            name: name,
-            email: email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-            role: 'user',
-            savedPlaces: [],
-            provider: 'email'
-          });
-
-          return Promise.all([profileUpdate, firestoreSave]);
-        })
-        .then(function () {
-          showAlert('reg-ok', 'Account created! Signing you in…', 'success');
-          setTimeout(function () {
-            window.location.href = '../index.html';
-          }, 1100);
-        })
-        .catch(function (err) {
+      fetch('../php/register.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, password: pw })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
           setLoading('reg', false);
-          showAlert('reg-err', friendlyError(err.code), 'error');
-        });
-    }
-
-    /* ══════════════════════════════════════════════
-       ✅ GOOGLE SOCIAL LOGIN
-    ══════════════════════════════════════════════ */
-    function socialLogin(provider) {
-      var authProvider;
-
-      if (provider === 'google') {
-        authProvider = new firebase.auth.GoogleAuthProvider();
-      } else if (provider === 'facebook') {
-        authProvider = new firebase.auth.FacebookAuthProvider();
-      } else {
-        // Apple & others — demo only
-        showAlert('login-err', provider + ' sign-in coming soon.', 'error');
-        return;
-      }
-
-      auth.signInWithPopup(authProvider)
-        .then(function (result) {
-          var user = result.user;
-          var isNewUser = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-
-          if (isNewUser) {
-            // Firestore eke nawa user save karanna
-            return db.collection('users').doc(user.uid).set({
-              uid: user.uid,
-              name: user.displayName || provider + ' User',
-              email: user.email,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-              role: 'user',
-              savedPlaces: [],
-              provider: provider,
-              photoURL: user.photoURL || ''
-            });
+          if (data.success) {
+            showAlert('reg-ok', data.message + ' Signing you in…', 'success');
+            setTimeout(function () { window.location.href = '../index.html'; }, 1200);
           } else {
-            return db.collection('users').doc(user.uid).update({
-              lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(function () { });
+            showAlert('reg-err', data.message, 'error');
           }
         })
-        .then(function () {
-          window.location.href = '../index.html';
-        })
-        .catch(function (err) {
-          showAlert('login-err', friendlyError(err.code), 'error');
+        .catch(function () {
+          setLoading('reg', false);
+          showAlert('reg-err', 'Server error. Please try again.', 'error');
         });
     }
 
     /* ══════════════════════════════════════════════
-       ✅ FORGOT PASSWORD — Firebase password reset
+       SOCIAL LOGIN — Coming Soon
+    ══════════════════════════════════════════════ */
+    function socialLogin(provider) {
+      showAlert('login-err', provider + ' sign-in coming soon.', 'error');
+    }
+
+    /* ══════════════════════════════════════════════
+       FORGOT PASSWORD
     ══════════════════════════════════════════════ */
     function doForgotPassword(e) {
       e.preventDefault();
       var email = document.getElementById('l-email').value.trim();
-
       if (!email) {
         showAlert('login-err', 'Enter your email above first, then click Forgot password.', 'error');
         document.getElementById('l-email').focus();
         return;
       }
-
-      auth.sendPasswordResetEmail(email)
-        .then(function () {
-          showAlert('login-ok', 'Password reset email sent! Check your inbox.', 'success');
-        })
-        .catch(function (err) {
-          showAlert('login-err', friendlyError(err.code), 'error');
-        });
+      showAlert('login-ok', 'Password reset feature coming soon. Please contact support.', 'success');
     }
 
     /* ══════════════════════════════════════════════
@@ -1252,17 +1137,6 @@
       if (e.key !== 'Enter') return;
       if (document.getElementById('section-login').classList.contains('active')) doLogin();
       else doRegister();
-    });
-
-    /* ══════════════════════════════════════════════
-       AUTO-REDIRECT — already logged in nam
-    ══════════════════════════════════════════════ */
-    auth.onAuthStateChanged(function (user) {
-      if (user) {
-        // User already logged in — redirect
-        // window.location.href = '../index.html';
-        // ↑ Comment out karanna development waladi
-      }
     });
   </script>
 </body>

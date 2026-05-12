@@ -1,6 +1,4 @@
 <?php
-// save_rating.php
-// Saves visitor star ratings to a JSON file
 
 header("Content-Type: application/json");
 
@@ -16,14 +14,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $file = "ratings.json";
 
-    // Load existing data
     $data = [];
     if (file_exists($file)) {
         $json = file_get_contents($file);
         $data = json_decode($json, true) ?? [];
     }
 
-    // Append new rating
     $data[] = [
         "place" => $place,
         "rating" => $rating,

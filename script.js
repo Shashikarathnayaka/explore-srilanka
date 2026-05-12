@@ -1,17 +1,14 @@
 
 function loadPage(pageName) {
-    // ① Hide all pages
     document.querySelectorAll(".page").forEach(function (p) {
         p.classList.remove("active");
     });
 
-    // ② Show the target page
     var target = document.getElementById("page-" + pageName);
     if (target) {
         target.classList.add("active");
     }
 
-    // ③ Update active nav link highlight
     document.querySelectorAll(".nav-link").forEach(function (link) {
         link.classList.remove("active");
         if (link.getAttribute("data-page") === pageName) {
@@ -19,8 +16,11 @@ function loadPage(pageName) {
         }
     });
 
-    // ④ Scroll content area to top on page switch
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (window.currentAuthState) {
+        applyAuthUI(window.currentAuthState);
+    }
 }
 
 /* Logo click → go home */
@@ -162,31 +162,6 @@ function submitContact(e) {
         e.target.reset();
     }, 3000);
 }
-
-/* ── Navbar login state check ── */
-function updateNavAuth() {
-    var user = JSON.parse(localStorage.getItem('esl_current_user') || 'null');
-    var authOut = document.getElementById('auth-out');
-    var authIn = document.getElementById('auth-in');
-    var nameEl = document.getElementById('nav-user-name');
-
-    if (user) {
-        authOut.style.display = 'none';
-        authIn.style.display = 'flex';
-        nameEl.textContent = user.name;
-    } else {
-        authOut.style.display = 'flex';
-        authIn.style.display = 'none';
-    }
-}
-
-function logoutUser() {
-    localStorage.removeItem('esl_current_user');
-    localStorage.removeItem('esl_remember');
-    updateNavAuth();
-}
-
-window.addEventListener('load', updateNavAuth);
 
 (function () {
 
@@ -373,170 +348,6 @@ window.addEventListener('load', updateNavAuth);
     });
 
 })();
-
-
-/*/////////////////////////////////*/
-/* ═══════════════════════════════════════════════════════
-   hotels.js  –  Hotel Section: Filter + Booking Logic
-   /* ════════════════════════════════════════
-   CULTURAL EVENTS - JavaScript
-   Save as: cultural-events.js
-════════════════════════════════════════ */
-
-// ── Event Data ──────────────────────────────────────────────────
-// const culturalEventsData = [
-//     {
-//         id: 1,
-//         name: "Esala Perahera",
-//         category: "religious",
-//         categoryLabel: "Religious",
-//         date: { day: "19", month: "Aug" },
-//         location: "Kandy",
-//         duration: "10 Days",
-//         status: "upcoming",
-//         image: "images/maligawa.jpg",
-//         shortDesc: "Sri Lanka's grandest and most sacred procession celebrating the Sacred Tooth Relic.",
-//         fullDesc: "The Esala Perahera in Kandy is one of the oldest and grandest Buddhist festivals in the world. This magnificent procession features elaborately decorated elephants, traditional Kandyan dancers, fire-breathers, and drummers parading through the streets of Kandy at night. The festival honours the Sacred Tooth Relic of the Buddha enshrined at Sri Dalada Maligawa."
-//     },
-//     {
-//         id: 2,
-//         name: "Sinhala & Tamil New Year",
-//         category: "festival",
-//         categoryLabel: "Festival",
-//         date: { day: "13", month: "Apr" },
-//         location: "Island-Wide",
-//         duration: "2 Days",
-//         status: "upcoming",
-//         image: "images/hero-sri-lanka.jpg",
-//         shortDesc: "The most celebrated national festival marking the traditional new year.",
-//         fullDesc: "Celebrated on April 13–14, the Sinhala and Tamil New Year (Aluth Avurudda / Puthandu) marks the end of the harvest season. Families light the hearth at the auspicious time, prepare traditional sweets like kavum and kokis, play village games, and visit elders. It's a vibrant nationwide celebration uniting communities across the island."
-//     },
-//     {
-//         id: 3,
-//         name: "Vesak Festival",
-//         category: "religious",
-//         categoryLabel: "Religious",
-//         date: { day: "12", month: "May" },
-//         location: "Island-Wide",
-//         duration: "2 Days",
-//         status: "ongoing",
-//         image: "images/maligawa.jpg",
-//         shortDesc: "The most important Buddhist festival illuminating the island with lanterns and dansalas.",
-//         fullDesc: "Vesak commemorates the birth, enlightenment, and passing of the Buddha. Sri Lanka transforms into a magical world of hand-crafted paper lanterns, illuminated pandals (thoranas) depicting Jataka stories, and free food stalls (dansalas). Streets are pedestrianized and the entire nation comes alive with colour, light and devotion."
-//     },
-//     {
-//         id: 4,
-//         name: "Galle Literary Festival",
-//         category: "cultural",
-//         categoryLabel: "Cultural",
-//         date: { day: "23", month: "Jan" },
-//         location: "Galle Fort",
-//         duration: "5 Days",
-//         status: "upcoming",
-//         image: "images/ella.jpg",
-//         shortDesc: "A world-class literary festival held inside the historic UNESCO Galle Fort.",
-//         fullDesc: "The Galle Literary Festival attracts award-winning authors, poets, and thinkers from across the globe to the stunning UNESCO World Heritage Galle Fort. Events include readings, panel discussions, workshops, and cultural performances. It celebrates literature, ideas, and Sri Lanka's vibrant arts scene against an extraordinary colonial backdrop."
-//     },
-//     {
-//         id: 5,
-//         name: "Arugam Bay Surf Festival",
-//         category: "sport",
-//         categoryLabel: "Sport",
-//         date: { day: "15", month: "Jul" },
-//         location: "Arugam Bay",
-//         duration: "3 Days",
-//         status: "upcoming",
-//         image: "images/mirs.jpg",
-//         shortDesc: "International surf competition on one of the world's top point breaks.",
-//         fullDesc: "Held at Arugam Bay — ranked among the world's top 10 surf spots — this festival brings together professional surfers from around the globe. Alongside competitive surfing, the event features beach parties, local food stalls, arts and crafts, and live music celebrating Sri Lanka's vibrant coastal culture and surf community."
-//     },
-//     {
-//         id: 6,
-//         name: "Navam Perahera",
-//         category: "religious",
-//         categoryLabel: "Religious",
-//         date: { day: "11", month: "Feb" },
-//         location: "Colombo",
-//         duration: "2 Nights",
-//         status: "upcoming",
-//         image: "images/hero-sri-lanka.jpg",
-//         shortDesc: "Colombo's spectacular full-moon procession with over 50 elephants.",
-//         fullDesc: "The Navam Perahera at Gangaramaya Temple in Colombo is one of the most spectacular Buddhist processions in the country. Held on the full moon day of Navam (February), it features over 50 caparisoned elephants, traditional dancers, musicians, acrobats, and torch bearers parading through the streets around Viharamahadevi Park."
-//     }
-// ];
-
-// // ── State ────────────────────────────────────────────────────────
-// let activeEventFilter = 'all';
-
-// // ── Render Events ────────────────────────────────────────────────
-// function renderCulturalEvents(filter) {
-//     const grid = document.getElementById('eventsGrid');
-//     const noResults = document.getElementById('eventsNoResults');
-//     if (!grid) return;
-
-//     let visible = 0;
-//     const cards = grid.querySelectorAll('.event-card');
-
-//     cards.forEach(card => {
-//         const cat = card.dataset.category;
-//         const show = filter === 'all' || cat === filter;
-//         card.classList.toggle('hidden', !show);
-//         if (show) visible++;
-//     });
-
-//     noResults.style.display = visible === 0 ? 'block' : 'none';
-// }
-
-// // ── Tab Filter ───────────────────────────────────────────────────
-// function setEventFilter(btn, filter) {
-//     document.querySelectorAll('.events-filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-//     btn.classList.add('active');
-//     activeEventFilter = filter;
-//     renderCulturalEvents(filter);
-// }
-
-// // ── Open Event Modal ─────────────────────────────────────────────
-// function openEventModal(id) {
-//     const ev = culturalEventsData.find(e => e.id === id);
-//     if (!ev) return;
-
-//     const overlay = document.getElementById('eventModal');
-//     const tagClass = `tag-${ev.category}`;
-
-//     document.getElementById('modalEventCatTag').className = `modal-cat-tag ${tagClass}`;
-//     document.getElementById('modalEventCatTag').textContent = ev.categoryLabel;
-//     document.getElementById('modalEventTitle').textContent = ev.name;
-//     document.getElementById('modalEventDate').textContent = `${ev.date.day} ${ev.date.month}`;
-//     document.getElementById('modalEventLocation').textContent = ev.location;
-//     document.getElementById('modalEventDuration').textContent = ev.duration;
-//     document.getElementById('modalEventDesc').textContent = ev.fullDesc;
-
-//     overlay.classList.add('open');
-//     document.body.style.overflow = 'hidden';
-// }
-
-// // ── Close Event Modal ────────────────────────────────────────────
-// function closeEventModal(e) {
-//     if (e && e.target !== document.getElementById('eventModal')) return;
-//     document.getElementById('eventModal').classList.remove('open');
-//     document.body.style.overflow = '';
-// }
-
-// function closeEventModalBtn() {
-//     document.getElementById('eventModal').classList.remove('open');
-//     document.body.style.overflow = '';
-// }
-
-// // ── Init on DOM Ready ────────────────────────────────────────────
-// document.addEventListener('DOMContentLoaded', function () {
-//     renderCulturalEvents('all');
-// });
-
-
-/* ════════════════════════════════════════
-   CULTURAL EVENTS - JavaScript
-   Save as: cultural-events.js
-════════════════════════════════════════ */
 
 // ── Event Data ──────────────────────────────────────────────────
 const culturalEventsData = [
