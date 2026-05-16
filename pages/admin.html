@@ -1777,7 +1777,7 @@
                 });
         })();
     </script>
-    
+
 </head>
 
 <body>
@@ -2110,6 +2110,11 @@
                                     <i class="fa-solid fa-gear"></i>
                                     <span>Settings</span>
                                 </div>
+                                <div class="qa-btn" onclick="showPage('settings',null)">
+                                    <i class="fa-solid fa-gear"></i>
+                                    <span>Add food</span>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -2851,57 +2856,57 @@
         let currentUserFilter = 'all';
 
         function doLogin() {
-                const u = document.getElementById('login-user').value.trim();
-                const p = document.getElementById('login-pass').value.trim();
-                const err = document.getElementById('login-err');
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const err = document.getElementById('login-err');
 
-                if (!u || !p) {
-                    err.style.display = 'block';
-                    setTimeout(() => err.style.display = 'none', 3000);
-                    return;
-                }
+            if (!u || !p) {
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+                return;
+            }
 
-                fetch('../php/login.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ email: u, password: p })
-                })
-                    .then(function (res) { return res.json(); })
-                    .then(function (data) {
-                        if (data.success && data.user && data.user.role === 'admin') {
-                            // ✅ Admin login success
-                            document.getElementById('login-screen').style.display = 'none';
-                            document.getElementById('app').classList.add('visible');
-                            document.querySelector('.user-name').textContent = data.user.name;
-                            renderAll();
-                        } else if (data.success && data.user.role !== 'admin') {
-                            err.querySelector
-                                ? err.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Access denied. Admins only.'
-                                : err.textContent = 'Access denied. Admins only.';
-                            err.style.display = 'block';
-                            setTimeout(() => err.style.display = 'none', 3000);
-                        } else {
-                            err.style.display = 'block';
-                            setTimeout(() => err.style.display = 'none', 3000);
-                        }
-                    })
-                    .catch(function () {
+            fetch('../php/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email: u, password: p })
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.success && data.user && data.user.role === 'admin') {
+                        // ✅ Admin login success
+                        document.getElementById('login-screen').style.display = 'none';
+                        document.getElementById('app').classList.add('visible');
+                        document.querySelector('.user-name').textContent = data.user.name;
+                        renderAll();
+                    } else if (data.success && data.user.role !== 'admin') {
+                        err.querySelector
+                            ? err.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Access denied. Admins only.'
+                            : err.textContent = 'Access denied. Admins only.';
                         err.style.display = 'block';
                         setTimeout(() => err.style.display = 'none', 3000);
-                    });
-            }
+                    } else {
+                        err.style.display = 'block';
+                        setTimeout(() => err.style.display = 'none', 3000);
+                    }
+                })
+                .catch(function () {
+                    err.style.display = 'block';
+                    setTimeout(() => err.style.display = 'none', 3000);
+                });
+        }
         document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
         function doLogout() {
-                fetch('../php/logout.php', { credentials: 'include' })
-                    .then(function (res) { return res.json(); })
-                    .then(function () {
-                        document.getElementById('app').classList.remove('visible');
-                        document.getElementById('login-screen').style.display = 'flex';
-                        document.getElementById('login-pass').value = '';
-                    });
-            }
+            fetch('../php/logout.php', { credentials: 'include' })
+                .then(function (res) { return res.json(); })
+                .then(function () {
+                    document.getElementById('app').classList.remove('visible');
+                    document.getElementById('login-screen').style.display = 'flex';
+                    document.getElementById('login-pass').value = '';
+                });
+        }
 
         /* ─── NAVIGATION ─── */
         function showPage(name, el) {
